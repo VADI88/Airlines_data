@@ -1,5 +1,4 @@
 library(tidyverse)
-librar
 library(lubridate)
 flights<-read_csv('2008.csv')
 flights<-flights %>% 
@@ -23,6 +22,8 @@ one_day<-flights %>%
   filter(date=="2008-08-01")
 
 colnames(one_day)
+
+
 
 cancellation_group<-one_day  %>%
   group_by(Cancellation_code) %>%
