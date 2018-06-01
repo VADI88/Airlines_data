@@ -1,26 +1,38 @@
 library(tidyverse)
+librar
 library(lubridate)
-rm(flights)
-flights<-read.csv('2008.csv')
+flights<-read_csv('2008.csv')
 flights<-flights %>% 
-        mutate(date=make_date(Year,Month,DayofMonth))
+ mutate(date=ymd(make_date(Year,Month,DayofMonth)))
 
-head(flights) 
-ggplot(data = flights,aes(Distance))+geom_histogram()
-airport<-read.csv('airports.csv') 
+lookUp1 <- setNames(c("carrier", "weather", "NAS","security"),c("A", "B", "C","D"))
+lookUp <- as.tibble(read.table(text = "
+                         CancellationCode   Cancellation_code
+                     1   A  carrier
+                     2   B  weather
+                     3   C  NAS
+                     4   D security", header = TRUE))
 
-head(airport)
+flights<-flights %>%
+  left_join(lookUp, by = "CancellationCode") 
 
 
-flights<-left_join(flights,select(airport,iata,airport),by = c("Origin"="iata"))
 
-colnames(flights)[colnames(flights) == 'airport'] <- 'Origin Airport'
 
-flights<-left_join(flights,select(airport,iata,airport),by = c("Dest"="iata"))
+one_day<-flights %>%
+  filter(date=="2008-08-01")
 
-colnames(flights)[colnames(flights) == 'airport'] <- 'Dest Airport'
+colnames(one_day)
 
-head(airport)
+cancellation_group<-one_day  %>%
+  group_by(Cancellation_code) %>%
+  summarise(count=n_distinct(FlightNum))
 
+
+plot1<-ggplot(data = cancellation_group %>% filter(Cancellation_code !="NA")) + 
+  geom_bar(aes(x=Cancellation_code,y=count),stat = "identity")
+
+plot1
+  
 
 
